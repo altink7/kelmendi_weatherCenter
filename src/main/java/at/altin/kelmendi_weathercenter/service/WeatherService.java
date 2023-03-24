@@ -1,6 +1,7 @@
 package at.altin.kelmendi_weathercenter.service;
 
 import at.altin.kelmendi_weathercenter.model.WeatherInformation;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.LinkedList;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
  * <li>2. Weather stations want to send you data</li>
  * </ul>
  */
+@Service
 public class WeatherService {
     private final List<WeatherInformation> weatherInformation = new LinkedList<>();
 
