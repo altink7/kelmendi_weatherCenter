@@ -5,6 +5,7 @@ import at.altin.kelmendi_weathercenter.model.WeatherInformation;
 import java.time.LocalDate;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Altin Kelmendi
@@ -45,8 +46,12 @@ public class WeatherService {
     /**
      * @return Last weather data from all Cities
      */
-    public WeatherInformation getLastWeatherData() {
-        return weatherInformation.get(weatherInformation.size() - 1);
+    public Object getLastWeatherData() {
+        if(weatherInformation.size() == 0) {
+            return "no data, please add some data first";
+        }else {
+            return weatherInformation.get(weatherInformation.size() - 1);
+        }
     }
 
     /**
@@ -54,13 +59,8 @@ public class WeatherService {
      * @return Weather data for the given city
      */
     public Object getWeatherDataForCity(String city) {
-        List<WeatherInformation> weatherDataForCity = new LinkedList<>();
+        List<WeatherInformation> weatherDataForCity = weatherInformation.stream().filter(weatherInformation -> weatherInformation.getCity().equals(city)).collect(Collectors.toCollection(LinkedList::new));
 
-        for (WeatherInformation weatherInformation : weatherInformation) {
-            if (weatherInformation.getCity().equals(city)) {
-                weatherDataForCity.add(weatherInformation);
-            }
-        }
         return weatherDataForCity.size()>0 ? weatherDataForCity : String.format("No weather data for %s", city);
     }
 
@@ -69,12 +69,7 @@ public class WeatherService {
      * @return Weather data for the given country
      */
     public Object getWeatherDataForCountry(String country) {
-        List<WeatherInformation> weatherDataForCountry = new LinkedList<>();
-        for (WeatherInformation weatherInformation : weatherInformation) {
-            if (weatherInformation.getCountry().equals(country)) {
-                weatherDataForCountry.add(weatherInformation);
-            }
-        }
+        List<WeatherInformation> weatherDataForCountry = weatherInformation.stream().filter(weatherInformation -> weatherInformation.getCountry().equals(country)).collect(Collectors.toCollection(LinkedList::new));
         return weatherDataForCountry.size()>0 ? weatherDataForCountry : String.format("No weather data for %s", country);
     }
 
