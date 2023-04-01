@@ -2,6 +2,7 @@ package at.altin.kelmendi_weathercenter.controller;
 
 import at.altin.kelmendi_weathercenter.model.WeatherInformation;
 import at.altin.kelmendi_weathercenter.service.WeatherService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 /**
  * @author Altin Kelmendi
@@ -25,7 +26,13 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/weather")
 @RestController
 public class WeatherController {
-    WeatherService weatherService = new WeatherService();
+    WeatherService weatherService;
+
+
+    @Autowired
+    public WeatherController(WeatherService weatherService) {
+        this.weatherService = weatherService;
+    }
 
     /**
      * adds and return all the test data

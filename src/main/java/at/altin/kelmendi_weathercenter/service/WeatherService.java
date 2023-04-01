@@ -1,6 +1,8 @@
 package at.altin.kelmendi_weathercenter.service;
 
 import at.altin.kelmendi_weathercenter.model.WeatherInformation;
+import at.altin.kelmendi_weathercenter.repo.WeatherInformationRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,7 +23,12 @@ import java.util.stream.Collectors;
  */
 @Service
 public class WeatherService {
-    private final List<WeatherInformation> weatherInformation = new LinkedList<>();
+    WeatherInformationRepo weatherInformationRepo;
+
+    @Autowired
+    public WeatherService(WeatherInformationRepo weatherInformationRepo) {
+        this.weatherInformationRepo = weatherInformationRepo;
+    }
 
     /**
      * @param city City to be added
@@ -31,28 +38,28 @@ public class WeatherService {
      * New weather data is added to the list
      */
     public void addWeatherData(String city, String country, String temperature, String windSpeed) {
-        weatherInformation.add(new WeatherInformation(city, country, temperature, windSpeed, LocalDate.now()));
+        weatherInformationRepo.save(new WeatherInformation(city, country, temperature, windSpeed, LocalDate.now()));
     }
 
     public void addWeatherData(WeatherInformation weatherInformation) {
-        this.weatherInformation.add(weatherInformation);
+        this.addWeatherData(weatherInformation.getCity(), weatherInformation.getCountry(), weatherInformation.getTemperature(), weatherInformation.getWindSpeed());
     }
 
     /**
      * @return List of all weather data
      */
     public List<WeatherInformation> getAllWeatherData() {
-        return weatherInformation;
+        return weatherInformationRepo.findAll();
     }
 
     /**
      * @return Last weather data from all Cities
      */
     public Object getLastWeatherData() {
-        if(weatherInformation.size() == 0) {
+        if(weatherInformationRepo.findAll().size() == 0) {
             return "no data, please add some data first";
         }else {
-            return weatherInformation.get(weatherInformation.size() - 1);
+            return weatherInformationRepo.findFirstByOrderByIdDesc();
         }
     }
 
@@ -61,7 +68,8 @@ public class WeatherService {
      * @return Weather data for the given city
      */
     public Object getWeatherDataForCity(String city) {
-        List<WeatherInformation> weatherDataForCity = weatherInformation.stream().filter(weatherInformation -> weatherInformation.getCity().equals(city)).collect(Collectors.toCollection(LinkedList::new));
+        List<WeatherInformation> weatherDataForCity = weatherInformationRepo.findAll().stream().filter
+                (weatherInformation -> weatherInformation.getCity().equals(city)).collect(Collectors.toCollection(LinkedList::new));
 
         return weatherDataForCity.size()>0 ? weatherDataForCity : String.format("No weather data for %s", city);
     }
@@ -71,7 +79,9 @@ public class WeatherService {
      * @return Weather data for the given country
      */
     public Object getWeatherDataForCountry(String country) {
-        List<WeatherInformation> weatherDataForCountry = weatherInformation.stream().filter(weatherInformation -> weatherInformation.getCountry().equals(country)).collect(Collectors.toCollection(LinkedList::new));
+        List<WeatherInformation> weatherDataForCountry = weatherInformationRepo.findAll().stream().filter
+                (weatherInformation -> weatherInformation.getCountry().equals(country)).collect(Collectors.toCollection(LinkedList::new));
+
         return weatherDataForCountry.size()>0 ? weatherDataForCountry : String.format("No weather data for %s", country);
     }
 
@@ -79,7 +89,7 @@ public class WeatherService {
      * clears all weather data
      */
     public void clearWeatherData() {
-        weatherInformation.clear();
+        weatherInformationRepo.deleteAll();
     }
 
      /**
@@ -101,4 +111,10 @@ public class WeatherService {
          addWeatherData("Toronto", "Canada", "80", "70");
          addWeatherData("Montreal", "Canada", "85", "75");
      }
+
+     @Autowired
+    public void setWeatherInformationRepo(WeatherInformationRepo weatherInformationRepo) {
+        this.weatherInformationRepo = weatherInformationRepo;
+    }
+
 }

@@ -1,5 +1,8 @@
 package at.altin.kelmendi_weathercenter.model;
 
+import jakarta.persistence.*;
+
+import java.io.Serializable;
 import java.time.LocalDate;
 
 /**
@@ -7,11 +10,22 @@ import java.time.LocalDate;
  * @since 1.0.0
  * This class is the model for weather data, it contains all the information about the weather
  */
-public class WeatherInformation {
+@Entity(name = "weather_information")
+public class WeatherInformation implements Serializable {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(nullable = false, updatable = false)
+
+    private Long id;
+    @Column(name = "city")
     private String city;
+    @Column(name = "country")
     private String country;
+    @Column(name = "temperature")
     private String temperature;
+    @Column(name = "wind_speed")
     private String windSpeed;
+    @Column(name = "time")
     private LocalDate time;
 
     public WeatherInformation(String city, String country, String temperature, String windSpeed, LocalDate time) {
@@ -20,6 +34,9 @@ public class WeatherInformation {
         this.temperature = temperature;
         this.windSpeed = windSpeed;
         this.time = time;
+    }
+
+    public WeatherInformation() {
     }
 
     public String getCity() {
@@ -56,5 +73,13 @@ public class WeatherInformation {
     public String toString() {
         return "WeatherInformation [city=" + city + ", country=" + country + ", temperature=" + temperature
                 + ", windSpeed=" + windSpeed + ", date=" +time +"] \n";
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

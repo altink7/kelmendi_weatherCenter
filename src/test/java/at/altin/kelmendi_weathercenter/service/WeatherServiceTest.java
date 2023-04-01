@@ -1,67 +1,81 @@
 package at.altin.kelmendi_weathercenter.service;
 
 import at.altin.kelmendi_weathercenter.model.WeatherInformation;
+import at.altin.kelmendi_weathercenter.repo.WeatherInformationRepo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-import java.time.LocalDate;
-import java.util.LinkedList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+/**
+ * @author Altin Kelmendi
+ * @since 1.0.0
+ * <br> This class is to test the business logic of the weather data
+ */
+public class WeatherServiceTest {
 
-class WeatherServiceTest {
-    WeatherService service;
-    WeatherInformation weatherInformation;
+    @Mock
+    private WeatherInformationRepo weatherInformationRepo;
+
+    private WeatherService weatherService;
+
     @BeforeEach
-    void setUp() {
-        service = new WeatherService();
-        weatherInformation = new WeatherInformation("city", "country", "temperature", "windSpeed", LocalDate.now());
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+        weatherService = new WeatherService(weatherInformationRepo);
     }
 
     @Test
-    void addWeatherData() {
-        service.addWeatherData("city", "country", "temperature", "windSpeed");
-        assertEquals(1, service.getAllWeatherData().size());
-        assertEquals("city", service.getAllWeatherData().get(0).getCity());
-        assertEquals("temperature", service.getAllWeatherData().get(0).getTemperature());
+    public void testAddWeatherData() {
+        WeatherInformation weatherInformation = getWeatherInformation();
+        weatherService.addWeatherData(weatherInformation);
+        verify(weatherInformationRepo, times(1)).save(any(WeatherInformation.class));
+    }
+
+
+    @Test
+    public void testGetAllWeatherData() {
+        WeatherInformation weatherInformation1 = getWeatherInformation();
+        WeatherInformation weatherInformation2 = new WeatherInformation("Berlin", "Germany", "25", "15", null);
+        List<WeatherInformation> weatherDataList = Arrays.asList(weatherInformation1, weatherInformation2);
+        when(weatherInformationRepo.findAll()).thenReturn(weatherDataList);
+        List<WeatherInformation> result = weatherService.getAllWeatherData();
+        assertEquals(weatherDataList, result);
+    }
+    @Test
+    public void testGetWeatherDataForCity() {
+        WeatherInformation weatherInformation1 = getWeatherInformation();
+        WeatherInformation weatherInformation2 = new WeatherInformation("Vienna", "Austria", "25", "15", null);
+        List<WeatherInformation> weatherDataList = Arrays.asList(weatherInformation1, weatherInformation2);
+        when(weatherInformationRepo.findAll()).thenReturn(weatherDataList);
+        Object result = weatherService.getWeatherDataForCity("Vienna");
+        assertEquals(weatherDataList, result);
     }
 
     @Test
-    void testAddWeatherData() {
-        service.addWeatherData(weatherInformation);
-        assertEquals(1, service.getAllWeatherData().size());
-        assertEquals(weatherInformation, service.getLastWeatherData());
+    public void testGetWeatherDataForCountry() {
+        WeatherInformation weatherInformation1 = getWeatherInformation();
+        WeatherInformation weatherInformation2 = new WeatherInformation("Berlin", "Austria", "25", "15", null);
+        List<WeatherInformation> weatherDataList = Arrays.asList(weatherInformation1, weatherInformation2);
+        when(weatherInformationRepo.findAll()).thenReturn(weatherDataList);
+        Object result = weatherService.getWeatherDataForCountry("Austria");
+        assertEquals(weatherDataList, result);
     }
 
     @Test
-    void getAllWeatherData() {
-        service.createTestData();
-        assertEquals(14, service.getAllWeatherData().size());
+    public void testClearWeatherData() {
+        weatherService.clearWeatherData();
+        verify(weatherInformationRepo, times(1)).deleteAll();
     }
 
-    @Test
-    void getWeatherDataForCity() {
-        service.addWeatherData(weatherInformation);
-        service.getWeatherDataForCity("city");
-        LinkedList<WeatherInformation> result = new LinkedList<>();
-        result.add(weatherInformation);
-
-        assertEquals(result,service.getWeatherDataForCity("city"));
+    private static WeatherInformation getWeatherInformation() {
+        WeatherInformation weatherInformation = new WeatherInformation("Vienna", "Austria", "20", "10", null);
+        return weatherInformation;
     }
 
-    @Test
-    void getWeatherDataForCountry() {
-        service.addWeatherData(weatherInformation);
-        service.getWeatherDataForCountry("country");
-        LinkedList<WeatherInformation> result = new LinkedList<>();
-        result.add(weatherInformation);
-        assertEquals(result,service.getWeatherDataForCountry("country"));
-    }
-
-    @Test
-    void clearWeatherData() {
-        service.addWeatherData(weatherInformation);
-        service.clearWeatherData();
-        assertEquals(0, service.getAllWeatherData().size());
-    }
 }
