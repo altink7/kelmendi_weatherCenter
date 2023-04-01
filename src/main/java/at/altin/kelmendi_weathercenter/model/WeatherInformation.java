@@ -15,7 +15,6 @@ public class WeatherInformation implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false, updatable = false)
-
     private Long id;
     @Column(name = "city")
     private String city;

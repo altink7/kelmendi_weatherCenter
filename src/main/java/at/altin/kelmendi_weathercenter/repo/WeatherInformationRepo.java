@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface WeatherInformationRepo extends JpaRepository<WeatherInformation,Long>{
     /**
-     * @returns last weather data from all cities, order by Id
+     * @return last weather data from all cities, order by Id
      */
     WeatherInformation findFirstByOrderByIdDesc();
 
